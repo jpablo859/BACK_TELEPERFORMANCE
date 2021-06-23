@@ -21,14 +21,11 @@ const createUser = async (req, res) => {
         responseUser = new User(req.body);
         const salt = bcrypt.genSaltSync();
         responseUser.password = bcrypt.hashSync(password, salt);
-        const resp = await responseUser.save();
-
-        const token = await generateJWT({uid: resp._id, user, role: resp.role});
+        await responseUser.save();
 
         return res.status(201).json({
             ok: true,
-            msg: 'usuario creado',
-            token
+            msg: 'usuario creado'
         })
     } catch {
         res.status(500).json({
@@ -36,7 +33,96 @@ const createUser = async (req, res) => {
             msg: 'Error interno'
         })
     }
+}
+
+const updateUser = async (req, res) => {
     
+    const { role, body: { 
+        nombre, apellido, cargo, salario, fechaIngreso
+     } } = req;
+    const { user } = req.params;
+
+    if (role === 'user') return res.status(401).json({
+        ok: false,
+        msg: 'El usuario no tiene permisos'
+    });
+
+    try {
+        const response = await User.findOneAndUpdate({_id: user}, {
+            nombre, apellido, cargo, salario, fechaIngreso
+        });
+
+        if (!response) return res.status(400).json({
+            ok: true,
+            msg: 'No se encontró el usuario que intenta actualizar'
+        })
+
+        return res.status(200).json({
+            ok: true,
+            msg: 'usuario actualizado'
+        })
+    } catch {
+        res.status(500).json({
+            ok: false,
+            msg: 'Error interno'
+        })
+    }
+}
+
+const deleteUser = async (req, res) => {
+    
+    const { role } = req;
+    const { user } = req.params;
+
+    if (role === 'user') return res.status(401).json({
+        ok: false,
+        msg: 'El usuario no tiene permisos'
+    });
+
+    try {
+        const response = await User.findOneAndDelete({_id: user});
+
+        if (!response) return res.status(400).json({
+            ok: true,
+            msg: 'No se encontró el usuario que intenta eliminar'
+        })
+
+        return res.status(200).json({
+            ok: true,
+            msg: 'usuario eliminado'
+        })
+    } catch {
+        res.status(500).json({
+            ok: false,
+            msg: 'Error interno'
+        })
+    }
+}
+
+const getUsers = async (req, res) => {
+
+    const { role } = req;
+
+    if (role === 'user') return res.status(401).json({
+        ok: false,
+        msg: 'El usuario no tiene permiso'
+    })
+
+    try {
+
+        const response = await User.find({role: 'user'});
+        return res.status(200).json({
+            ok: true,
+            response
+        });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error interno'
+        })
+    }
 }
 
 const login = async (req, res) => {
@@ -73,31 +159,10 @@ const login = async (req, res) => {
     }
 }
 
-const revalidateToken = async (req, res) => {
-    const {uid, name} = req;
-
-    try {
-        const token = await generateJWT(uid, name);
-    
-        return res.status(200).json({
-            ok: true,
-            msg: 'Se ha generado un nuevo token',
-            token,
-            user: {
-                uid,
-                name 
-            }
-        })
-    } catch {
-        res.status(500).json({
-            ok: false,
-            msg: 'Error interno'
-        })
-    }
-}
-
 module.exports = {
+    getUsers,
+    deleteUser,
+    updateUser,
     createUser,
     login,
-    revalidateToken
 }

@@ -14,6 +14,26 @@ const UserSchema = new Schema({
         type: String,
         required: true,
         default: 'user'
+    },
+    nombre: {
+        type: String,
+        required: true
+    },
+    apellido: {
+        type: String,
+        required: true
+    },
+    cargo: {
+        type: String,
+        required: true
+    },
+    salario: {
+        type: Number,
+        required: true
+    },
+    fechaIngreso: {
+        type: Date,
+        required: true
     }
 });
 
