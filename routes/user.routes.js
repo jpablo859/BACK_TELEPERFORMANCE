@@ -3,9 +3,9 @@ const {check} = require('express-validator');
 const {validateJWT} = require('../middlewares/validateJWT');
 const router = Router();
 
-const {login, createUser, deleteUser, updateUser, getUsers} = require('../controllers/user.controller');
+const {login, createUser, deleteUser, updateUser, getUsers, revalidateToken, getApi, updateEstadoUser} = require('../controllers/user.controller');
 const { validate } = require('../middlewares/validate');
-const { validateRoleAdmin } = require('../middlewares/validateRole');
+const { validateRoleAdmin, validateRoleUser } = require('../middlewares/validateRole');
 
 router.post ('/login', [
     check('user', 'Usuario o Contraseña incorrecta').not().isEmpty(),
@@ -33,14 +33,13 @@ router.put('/updateUser/:user', [
     [validate, validateJWT, validateRoleAdmin]
 ], updateUser);
 
-router.delete('/deleteUser/:user', [
-    check('nombre', 'El nombre es obligatorio').not().isEmpty(),
-    check('apellido', 'El apellido es obligatorio').not().isEmpty(),
-    check('cargo', 'El cargo es obligatorio').not().isEmpty(),
-    check('salario', 'El salario no es correcto').isNumeric(),
-    check('fechaIngreso', 'Fecha inválida').isDate({format: 'YYYY-MM-DD'}),
-    [validate, validateJWT, validateRoleAdmin]
-], deleteUser);
+router.put('/updateEstadoUser/:user', [validateJWT, validateRoleAdmin], updateEstadoUser);
 
-router.get('/getUsers', [validateJWT], getUsers);
+router.delete('/deleteUser/:user', [validateJWT, validateRoleAdmin], deleteUser);
+
+router.get('/renew', validateJWT, revalidateToken);
+router.get('/getUsers', [validateJWT, validateRoleAdmin], getUsers);
+router.get('/getApi', [validateJWT, validateRoleUser], getApi);
+
+
 module.exports = router;

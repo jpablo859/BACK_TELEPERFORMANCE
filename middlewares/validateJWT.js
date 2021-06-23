@@ -10,9 +10,10 @@ const validateJWT = async (req, res, next) => {
     })
 
     try {
-        const { uid, role } = jwt.verify(token, process.env.SECRET_JWT_SEED);
+        const { uid, user, role } = jwt.verify(token, process.env.SECRET_JWT_SEED);
 
         req.uid = uid;
+        req.user = user;
         req.role = role;
 
     } catch(err) {

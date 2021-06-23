@@ -34,6 +34,11 @@ const UserSchema = new Schema({
     fechaIngreso: {
         type: Date,
         required: true
+    },
+    estado: {
+        type: String,
+        required: true,
+        default: 'Activo'
     }
 });
 
