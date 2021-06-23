@@ -5,6 +5,7 @@ const router = Router();
 
 const {login, createUser, deleteUser, updateUser, getUsers} = require('../controllers/user.controller');
 const { validate } = require('../middlewares/validate');
+const { validateRoleAdmin } = require('../middlewares/validateRole');
 
 router.post ('/login', [
     check('user', 'Usuario o Contraseña incorrecta').not().isEmpty(),
@@ -20,7 +21,7 @@ router.post('/new', [
     check('cargo', 'El cargo es obligatorio').not().isEmpty(),
     check('salario', 'El salario no es correcto').isNumeric(),
     check('fechaIngreso', 'Fecha inválida').isDate({format: 'YYYY-MM-DD'}),
-    [validate, validateJWT]
+    [validate, validateJWT, validateRoleAdmin]
 ], createUser);
 
 router.put('/updateUser/:user', [
@@ -29,7 +30,7 @@ router.put('/updateUser/:user', [
     check('cargo', 'El cargo es obligatorio').not().isEmpty(),
     check('salario', 'El salario no es correcto').isNumeric(),
     check('fechaIngreso', 'Fecha inválida').isDate({format: 'YYYY-MM-DD'}),
-    [validate, validateJWT]
+    [validate, validateJWT, validateRoleAdmin]
 ], updateUser);
 
 router.delete('/deleteUser/:user', [
@@ -38,7 +39,7 @@ router.delete('/deleteUser/:user', [
     check('cargo', 'El cargo es obligatorio').not().isEmpty(),
     check('salario', 'El salario no es correcto').isNumeric(),
     check('fechaIngreso', 'Fecha inválida').isDate({format: 'YYYY-MM-DD'}),
-    [validate, validateJWT]
+    [validate, validateJWT, validateRoleAdmin]
 ], deleteUser);
 
 router.get('/getUsers', [validateJWT], getUsers);

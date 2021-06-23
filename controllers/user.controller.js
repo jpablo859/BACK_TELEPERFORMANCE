@@ -3,13 +3,7 @@ const User = require('../models/user.model');
 const {generateJWT} = require('../helpers/jwt');
 
 const createUser = async (req, res) => {
-    
-    const { role, body: { user, password } } = req;
-
-    if (role === 'user') return res.status(401).json({
-        ok: false,
-        msg: 'El usuario no tiene permisos'
-    });
+    const { user, password } = req.body;
 
     try {
         let responseUser = await User.findOne({user});
@@ -36,16 +30,8 @@ const createUser = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
-    
-    const { role, body: { 
-        nombre, apellido, cargo, salario, fechaIngreso
-     } } = req;
+    const { nombre, apellido, cargo, salario, fechaIngreso } = req.body;
     const { user } = req.params;
-
-    if (role === 'user') return res.status(401).json({
-        ok: false,
-        msg: 'El usuario no tiene permisos'
-    });
 
     try {
         const response = await User.findOneAndUpdate({_id: user}, {
@@ -70,14 +56,7 @@ const updateUser = async (req, res) => {
 }
 
 const deleteUser = async (req, res) => {
-    
-    const { role } = req;
     const { user } = req.params;
-
-    if (role === 'user') return res.status(401).json({
-        ok: false,
-        msg: 'El usuario no tiene permisos'
-    });
 
     try {
         const response = await User.findOneAndDelete({_id: user});
@@ -100,22 +79,12 @@ const deleteUser = async (req, res) => {
 }
 
 const getUsers = async (req, res) => {
-
-    const { role } = req;
-
-    if (role === 'user') return res.status(401).json({
-        ok: false,
-        msg: 'El usuario no tiene permiso'
-    })
-
     try {
-
-        const response = await User.find({role: 'user'});
+        const response = await User.find({role: 'user'}, {role: 0});
         return res.status(200).json({
             ok: true,
             response
         });
-
     } catch (err) {
         console.log(err);
         return res.status(500).json({
@@ -126,6 +95,7 @@ const getUsers = async (req, res) => {
 }
 
 const login = async (req, res) => {
+
 
     const {user, password} = req.body;
 
